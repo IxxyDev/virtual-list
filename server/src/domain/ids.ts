@@ -14,6 +14,12 @@ export function isBaseId(id: ItemId): boolean {
   return id >= 1 && id <= BASE_COUNT;
 }
 
+export function normalizeQuery(raw: unknown): Query {
+  const q = String(raw ?? '').trim();
+  if (q === '') return '';
+  return /^\d+$/.test(q) ? q : null;
+}
+
 export function matches(id: ItemId, q: string): boolean {
   return q === '' || String(id).includes(q);
 }

@@ -44,6 +44,7 @@ export class Selection {
     let from = 0;
     if (cursor !== null) {
       const at = this.order.indexOf(cursor);
+      // курсор это id, его могли снять, пока листали. Тогда 410, и фронт перезапросит с нуля
       if (at === -1) return null;
       from = at + 1;
     }

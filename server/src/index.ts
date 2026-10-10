@@ -1,11 +1,20 @@
-import express from 'express';
+import { createService } from './app/service.ts';
+import { createApp } from './http/app.ts';
+import { readConfig } from './config.ts';
 
-const app = express();
+const config = readConfig(process.env);
+const service = createService(config);
+const app = createApp(service);
 
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true });
+const server = app.listen(config.port, () => {
+  console.log(`listening on :${config.port}, add batch ${config.addIntervalMs}ms, change batch ${config.rwIntervalMs}ms`);
 });
 
-app.listen(3000, () => {
-  console.log('listening on :3000');
-});
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.on(signal, () => {
+    server.close(() => {
+      service.close();
+      process.exit(0);
+    });
+  });
+}

@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "start": "pnpm --filter server start"
   }
 }
