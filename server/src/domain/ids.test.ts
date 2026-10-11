@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { matches, parseId } from './ids.ts';
+import { matches, normalizeQuery, parseId } from './ids.ts';
 
 test('parses ids from numbers and strings', () => {
   assert.equal(parseId(5), 5);
@@ -14,8 +14,11 @@ test('parses ids from numbers and strings', () => {
   assert.equal(parseId(undefined), null);
 });
 
-test('matches by substring', () => {
+test('matches by substring and normalizes the query', () => {
   assert.ok(matches(1500, '50'));
   assert.ok(!matches(1005, '50'));
   assert.ok(matches(7, ''));
+  assert.equal(normalizeQuery(' 12 '), '12');
+  assert.equal(normalizeQuery(''), '');
+  assert.equal(normalizeQuery('1a'), null);
 });
