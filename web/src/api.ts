@@ -32,4 +32,6 @@ function pageQuery(q: string, cursor: number | null): string {
 
 export const api = {
   items: (q: string, cursor: number | null) => request<Page>('GET', `/api/items${pageQuery(q, cursor)}`),
+  addItem: (id: number) => request<{ result: string }>('POST', '/api/items', { id }),
+  select: (id: number) => request<{ result: string }>('POST', '/api/selected', { id }),
 };
