@@ -11,3 +11,11 @@ export function insertSorted(items: number[], id: number): number[] {
   const at = items.findIndex((x) => x > id);
   return at === -1 ? [...items, id] : [...items.slice(0, at), id, ...items.slice(at)];
 }
+
+export function moveBefore(items: number[], id: number, beforeId: number | null): number[] {
+  if (!items.includes(id)) return items;
+  const rest = without(items, id);
+  const at = beforeId === null ? rest.length : rest.indexOf(beforeId);
+  if (at === -1) return items;
+  return [...rest.slice(0, at), id, ...rest.slice(at)];
+}

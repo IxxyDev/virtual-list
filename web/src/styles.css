@@ -143,6 +143,7 @@ button.link {
   gap: 8px;
   padding: 0 12px;
   border-bottom: 1px solid #eee;
+  border-top: 2px solid transparent;
 }
 
 .row:hover {
@@ -151,6 +152,37 @@ button.link {
 
 .row .id {
   flex: 1;
+}
+
+.row.draggable {
+  cursor: grab;
+}
+
+.row.dragging {
+  opacity: 0.4;
+}
+
+.row.over {
+  border-top-color: #06c;
+}
+
+.grip {
+  color: #aaa;
+  user-select: none;
+}
+
+.drop-end {
+  margin: 8px 12px;
+  padding: 8px;
+  text-align: center;
+  color: #777;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+}
+
+.drop-end.over {
+  border-color: #06c;
+  color: #06c;
 }
 
 .list-footer {
