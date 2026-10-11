@@ -1,3 +1,6 @@
 packages:
   - server
   - web
+minimumReleaseAgeExclude:
+  - '@tanstack/react-virtual@3.14.17'
+  - '@tanstack/virtual-core@3.19.2'
