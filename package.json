@@ -10,6 +10,7 @@
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "build": "pnpm --filter web build",
-    "start": "pnpm --filter server start"
+    "start": "pnpm --filter server start",
+    "bench": "pnpm --filter server bench"
   }
 }
