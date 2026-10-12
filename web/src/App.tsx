@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { api, ApiError } from './api.ts';
 import { AvailablePanel } from './AvailablePanel.tsx';
 import { SelectedPanel } from './SelectedPanel.tsx';
 import { usePagedList } from './usePagedList.ts';
-import { useDebounced } from './hooks.ts';
+import { track, usePending } from './pending.ts';
+import { useDebounced, useHealth } from './hooks.ts';
 import { insertSorted, matchesQuery, moveBefore, without } from './lists.ts';
 
 export function App() {
@@ -13,7 +14,11 @@ export function App() {
   const rightQ = useDebounced(rightQuery.trim(), 300);
   const left = usePagedList(api.items, leftQ);
   const right = usePagedList(api.selected, rightQ);
+  const pending = usePending();
+  const health = useHealth(2000);
   const [notice, setNotice] = useState<string | null>(null);
+
+  const isPending = useCallback((key: string) => pending.some((op) => op.key === key), [pending]);
 
   const fail = (err: unknown) => {
     setNotice(err instanceof Error ? err.message : String(err));
@@ -24,8 +29,7 @@ export function App() {
   };
 
   const select = (id: number) => {
-    api
-      .select(id)
+    track(`select:${id}`, `выбор #${id}`, () => api.select(id))
       .then(() => {
         left.mutate((items) => without(items, id));
         if (right.loaded && right.nextCursor === null && matchesQuery(id, rightQ)) {
@@ -36,8 +40,7 @@ export function App() {
   };
 
   const deselect = (id: number) => {
-    api
-      .deselect(id)
+    track(`deselect:${id}`, `снятие #${id}`, () => api.deselect(id))
       .then(() => {
         right.mutate((items) => without(items, id));
         const lastLoaded = left.items.at(-1);
@@ -50,8 +53,7 @@ export function App() {
   };
 
   const move = (id: number, beforeId: number | null) => {
-    api
-      .move(id, beforeId)
+    track(`move:${id}`, `перенос #${id}`, () => api.move(id, beforeId))
       .then(() => {
         if (beforeId === null && right.nextCursor !== null) {
           right.mutate((items) => without(items, id));
@@ -63,8 +65,7 @@ export function App() {
   };
 
   const add = (id: number) =>
-    api
-      .addItem(id)
+    track(`add:${id}`, `добавление #${id}`, () => api.addItem(id))
       .then(() => {
         setNotice(`#${id} добавлен в конец списка`);
         if (left.loaded && left.nextCursor === null && matchesQuery(id, leftQ)) {
@@ -77,19 +78,38 @@ export function App() {
 
   return (
     <div className="app">
+      <header className="status">
+        <div className="pending-ops">
+          {pending.length === 0 && <span className="muted">нет ожидающих операций</span>}
+          {pending.map((op) => (
+            <span key={op.key} className="chip">
+              {op.label}
+            </span>
+          ))}
+        </div>
+      </header>
       {notice && (
         <div className="notice" onClick={() => setNotice(null)}>
           {notice}
         </div>
       )}
       <main className="panels">
-        <AvailablePanel list={left} query={leftQuery} onQuery={setLeftQuery} onSelect={select} onAdd={add} />
+        <AvailablePanel
+          list={left}
+          query={leftQuery}
+          onQuery={setLeftQuery}
+          onSelect={select}
+          onAdd={add}
+          isPending={isPending}
+        />
         <SelectedPanel
           list={right}
+          total={health?.selected ?? null}
           query={rightQuery}
           onQuery={setRightQuery}
           onDeselect={deselect}
           onMove={move}
+          isPending={isPending}
         />
       </main>
     </div>

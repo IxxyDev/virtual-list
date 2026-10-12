@@ -1,5 +1,7 @@
 export type Page = { items: number[]; nextCursor: number | null };
 
+export type Health = { selected: number; custom: number; pending: number };
+
 export class ApiError extends Error {
   readonly status: number;
   readonly result: string | undefined;
@@ -37,4 +39,5 @@ export const api = {
   select: (id: number) => request<{ result: string }>('POST', '/api/selected', { id }),
   deselect: (id: number) => request<{ result: string }>('DELETE', `/api/selected/${id}`),
   move: (id: number, beforeId: number | null) => request<{ result: string }>('PATCH', `/api/selected/${id}`, { beforeId }),
+  health: () => request<Health>('GET', '/api/health'),
 };

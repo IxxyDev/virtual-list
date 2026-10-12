@@ -9,9 +9,10 @@ type Props = {
   onQuery: (q: string) => void;
   onSelect: (id: number) => void;
   onAdd: (id: number) => Promise<void>;
+  isPending: (key: string) => boolean;
 };
 
-export function AvailablePanel({ list, query, onQuery, onSelect, onAdd }: Props) {
+export function AvailablePanel({ list, query, onQuery, onSelect, onAdd, isPending }: Props) {
   const [draft, setDraft] = useState('');
   const [adding, setAdding] = useState(false);
 
@@ -56,11 +57,12 @@ export function AvailablePanel({ list, query, onQuery, onSelect, onAdd }: Props)
         footer={<ListFooter list={list} />}
         renderRow={(index) => {
           const id = list.items[index]!;
+          const pending = isPending(`select:${id}`);
           return (
-            <div className="row">
+            <div className={pending ? 'row pending' : 'row'}>
               <span className="id">#{id}</span>
-              <button className="ghost" onClick={() => onSelect(id)} title="Выбрать">
-                →
+              <button className="ghost" onClick={() => onSelect(id)} disabled={pending} title="Выбрать">
+                {pending ? '...' : '→'}
               </button>
             </div>
           );

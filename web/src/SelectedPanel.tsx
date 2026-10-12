@@ -6,13 +6,15 @@ import type { PagedList } from './usePagedList.ts';
 
 type Props = {
   list: PagedList;
+  total: number | null;
   query: string;
   onQuery: (q: string) => void;
   onDeselect: (id: number) => void;
   onMove: (id: number, beforeId: number | null) => void;
+  isPending: (key: string) => boolean;
 };
 
-export function SelectedPanel({ list, query, onQuery, onDeselect, onMove }: Props) {
+export function SelectedPanel({ list, total, query, onQuery, onDeselect, onMove, isPending }: Props) {
   const [dragId, setDragId] = useState<number | null>(null);
   const [overId, setOverId] = useState<number | null | 'end'>(null);
 
@@ -33,8 +35,10 @@ export function SelectedPanel({ list, query, onQuery, onDeselect, onMove }: Prop
     if (overId !== target) setOverId(target);
   };
 
+  const subtitle = total === null ? 'загрузка' : `выбрано ${total}, загружено ${list.items.length}`;
+
   return (
-    <Panel title="Выбранные" subtitle={`загружено ${list.items.length}`} query={query} onQuery={onQuery}>
+    <Panel title="Выбранные" subtitle={subtitle} query={query} onQuery={onQuery}>
       <VirtualList
         count={list.items.length}
         rowHeight={40}
@@ -56,13 +60,15 @@ export function SelectedPanel({ list, query, onQuery, onDeselect, onMove }: Prop
         }
         renderRow={(index) => {
           const id = list.items[index]!;
+          const pending = isPending(`deselect:${id}`) || isPending(`move:${id}`);
           const classes = ['row', 'draggable'];
+          if (pending) classes.push('pending');
           if (overId === id && dragId !== id) classes.push('over');
           if (dragId === id) classes.push('dragging');
           return (
             <div
               className={classes.join(' ')}
-              draggable
+              draggable={!pending}
               onDragStart={(e) => {
                 e.dataTransfer.setData('text/plain', String(id));
                 e.dataTransfer.effectAllowed = 'move';
@@ -80,8 +86,8 @@ export function SelectedPanel({ list, query, onQuery, onDeselect, onMove }: Prop
                 ⋮⋮
               </span>
               <span className="id">#{id}</span>
-              <button className="ghost" onClick={() => onDeselect(id)} title="Убрать из выбранных">
-                ←
+              <button className="ghost" onClick={() => onDeselect(id)} disabled={pending} title="Убрать из выбранных">
+                {pending ? '...' : '←'}
               </button>
             </div>
           );

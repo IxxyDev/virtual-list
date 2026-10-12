@@ -23,6 +23,26 @@ body {
   gap: 10px;
 }
 
+.status {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pending-ops {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: #fff3cd;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
 .notice {
   background: #eef;
   padding: 6px 10px;
@@ -152,6 +172,10 @@ button.link {
 
 .row .id {
   flex: 1;
+}
+
+.row.pending {
+  opacity: 0.5;
 }
 
 .row.draggable {
