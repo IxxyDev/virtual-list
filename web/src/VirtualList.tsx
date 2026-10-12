@@ -21,7 +21,7 @@ export function VirtualList({ count, rowHeight, renderRow, onEndReached, footer 
   const lastIndex = rows.at(-1)?.index ?? -1;
 
   useEffect(() => {
-    if (count === 0 || lastIndex >= count - 5) onEndReached();
+    if (count > 0 && lastIndex >= count - 5) onEndReached();
   }, [count, lastIndex, onEndReached]);
 
   return (
