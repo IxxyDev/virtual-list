@@ -217,3 +217,9 @@ button.link {
 .list-footer.error {
   color: #c00;
 }
+
+@media (max-width: 800px) {
+  .panels {
+    grid-template-columns: 1fr;
+  }
+}
