@@ -1,10 +1,12 @@
+import { fileURLToPath } from 'node:url';
 import { createService } from './app/service.ts';
 import { createApp } from './http/app.ts';
 import { readConfig } from './config.ts';
 
 const config = readConfig(process.env);
 const service = createService(config);
-const app = createApp(service);
+const staticDir = fileURLToPath(new URL('../../web/dist', import.meta.url));
+const app = createApp(service, { staticDir });
 
 const server = app.listen(config.port, () => {
   console.log(`listening on :${config.port}, add batch ${config.addIntervalMs}ms, change batch ${config.rwIntervalMs}ms`);

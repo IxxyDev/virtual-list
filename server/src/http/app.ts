@@ -1,7 +1,13 @@
 import express, { type ErrorRequestHandler, type Response } from 'express';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { normalizeQuery, parseId } from '../domain/ids.ts';
 import { QueueOverflowError } from '../queue/batch-queue.ts';
 import type { Service } from '../app/service.ts';
+
+export type AppOptions = {
+  staticDir?: string;
+};
 
 const BAD_ID = 'id must be a positive integer';
 
@@ -14,7 +20,7 @@ function parseCursor(raw: unknown): number | null | undefined {
   return parseId(raw) ?? undefined;
 }
 
-export function createApp(service: Service) {
+export function createApp(service: Service, options: AppOptions = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.use(express.json({ limit: '1kb' }));
@@ -79,6 +85,14 @@ export function createApp(service: Service) {
   app.use('/api', (_req, res) => {
     res.status(404).json({ error: 'not found' });
   });
+
+  if (options.staticDir && existsSync(options.staticDir)) {
+    const dir = options.staticDir;
+    app.use(express.static(dir));
+    app.get('{*path}', (_req, res) => {
+      res.sendFile(join(dir, 'index.html'));
+    });
+  }
 
   const onError: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof QueueOverflowError) {
