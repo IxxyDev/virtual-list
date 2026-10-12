@@ -16,8 +16,7 @@ export class Catalog {
   add(id: ItemId): boolean {
     if (this.has(id)) return false;
     this.customSet.add(id);
-    this.custom.push(id);
-    this.custom.sort((a, b) => a - b);
+    this.custom.splice(lowerBound(this.custom, id), 0, id);
     return true;
   }
 
@@ -29,10 +28,21 @@ export class Catalog {
     for (let id = from; id <= BASE_COUNT && items.length < limit; id++) {
       if (matches(id, q) && !exclude(id)) items.push(id);
     }
-    for (const id of this.custom) {
-      if (items.length >= limit) break;
-      if (id >= from && matches(id, q) && !exclude(id)) items.push(id);
+    for (let i = lowerBound(this.custom, from); i < this.custom.length && items.length < limit; i++) {
+      const id = this.custom[i]!;
+      if (matches(id, q) && !exclude(id)) items.push(id);
     }
     return page(items, limit);
   }
+}
+
+function lowerBound(sorted: ItemId[], value: ItemId): number {
+  let lo = 0;
+  let hi = sorted.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >>> 1;
+    if (sorted[mid]! < value) lo = mid + 1;
+    else hi = mid;
+  }
+  return lo;
 }

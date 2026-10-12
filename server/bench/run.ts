@@ -73,8 +73,11 @@ median('правый список, страница с курсором в ко�
 median('правый список, фильтр "999999" по 1M выбранных', () => selection.list('999999', null, 20), 10);
 
 const customCatalog = new Catalog();
+timed('20k добавлений в одной пачке', () => {
+  for (let i = 1; i <= 20_000; i++) customCatalog.add(BASE_COUNT + i * 7);
+});
 heapDelta('память: Catalog с 100k добавленных id', () => {
-  for (let i = 1; i <= 100_000; i++) customCatalog.add(BASE_COUNT + i);
+  for (let i = 1; i <= 100_000; i++) customCatalog.add(BASE_COUNT + i * 3);
 });
 median('левый список с курсором внутри 100k добавленных', () => customCatalog.list('', BASE_COUNT + 50_000, 20, none), 20);
 
